@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import './App.css'
 
 function PlayerNamePicker({setCurrentPlayer}) {
   const dialogRef = useRef(null);
@@ -25,13 +26,13 @@ function PlayerNamePicker({setCurrentPlayer}) {
 
 function TableNumberTile({ number, color, onClick }) {
   return (
-    <button style={{backgroundColor: color}} onClick={(e) => onClick(number)}>
+    <button style={{backgroundColor: color}} onClick={() => onClick(number)}>
       {number}
     </button>
   );
 }
 
-function TablePlayer({ color, player }) {
+function TablePlayer({ color, player }:{color:string, player:string}) {
   return (
     <div style={{backgroundColor: color, textAlign: "center"}}>
       {player}
@@ -85,7 +86,7 @@ export default function App() {
     }
   ]);
 
-  const onCurrentPlayerPick = (pickedNumber) => {
+  const onCurrentPlayerPick = (pickedNumber:number) => {
     const newTables = structuredClone(tables);
     newTables.some((table) => {
       return table.players.some(player => {

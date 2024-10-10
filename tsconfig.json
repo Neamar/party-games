@@ -1,12 +1,7 @@
 {
-  "compilerOptions": {
-    "allowJs": true,
-    "jsx": "react-jsx"
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "**/*.tsx",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ]
 }
