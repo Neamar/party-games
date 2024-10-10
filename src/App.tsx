@@ -1,4 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+function PlayerNamePicker({setCurrentPlayer}) {
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    setCurrentPlayer(event.currentTarget.elements['player-name'].value)
+  }
+
+  return <dialog ref={dialogRef}>
+    <h1>Welcome to UpDown!</h1>
+    <p>Pick a name to get started.</p>
+    <form onSubmit={handleSubmit}>
+      <input type="text" id="player-name"/>
+      <input type="submit" value="Submit" />
+    </form>
+  </dialog>
+}
 
 function TableNumberTile({ number, color, onClick }) {
   return (
@@ -35,7 +58,7 @@ function Table({tableIndex, tableCount, players, currentPlayer, onCurrentPlayerP
 }
 
 export default function App() {
-  const [currentPlayer, setCurrentPlayer] = useState("Matthieu");
+  const [currentPlayer, setCurrentPlayer] = useState('');
   const [displayedTable, setDisplayedTable] = useState(1);
   const [tables, setTables] = useState([
     {
@@ -77,6 +100,7 @@ export default function App() {
   }
 
   return <>
+    {!currentPlayer && <PlayerNamePicker setCurrentPlayer={setCurrentPlayer} />}
     <div id="tables">
       {tables.map((t) => <Table tableIndex={t.index} tableCount={tables.length} key={"table-" + t.index} players={t.players} currentPlayer={currentPlayer} onCurrentPlayerPick={onCurrentPlayerPick} />)}
     </div>
