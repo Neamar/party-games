@@ -41,13 +41,9 @@ class Game {
     }
   }
 
-  anonymizedState() {
-    return this.state;
-  }
-
   addConnection(ws) {
     this.#ws.add(ws);
-    this.send(ws, "state", this.anonymizedState())
+    this.send(ws, "state", this.state);
   }
 
   removeConnection(ws) {
@@ -99,12 +95,16 @@ class Game {
 
     types[type]();
     if (requireBroadcast) {
-      this.broadcast("state", this.anonymizedState());
+      this.broadcast("state", this.state);
     }
   }
 
   send(ws, type, content) {
-    ws.send(JSON.stringify({ type, content }))
+    // Never send the privateId key
+    ws.send(JSON.stringify(
+      { type, content },
+      (key, value) => key === 'privateId' ? undefined : value)
+    );
   }
 
   broadcast(type, content) {
