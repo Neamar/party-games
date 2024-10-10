@@ -1,118 +1,84 @@
 import { useState } from 'react';
 
-function FilterableProductTable({ products }) {
-  const [filterText, setFilterText] = useState('app');
-  const [inStockOnly, setInStockOnly] = useState(false);
-
+function TableNumberTile({ number, color, onClick }) {
   return (
-    <div>
-      <SearchBar
-        filterText={filterText}
-        onFilterChange={setFilterText}
-        inStockOnly={inStockOnly} />
-      <ProductTable
-        products={products}
-        filterText={filterText}
-        inStockOnly={inStockOnly} />
+    <button style={{backgroundColor: color}} onClick={(e) => onClick(number)}>
+      {number}
+    </button>
+  );
+}
+
+function TablePlayer({ color, player }) {
+  return (
+    <div style={{backgroundColor: color, textAlign: "center"}}>
+      {player}
     </div>
   );
 }
 
-function ProductCategoryRow({ category }) {
-  return (
-    <tr>
-      <th colSpan={2}>
-        {category}
-      </th>
-    </tr>
-  );
-}
+function Table({tableIndex, tableCount, players, currentPlayer, onCurrentPlayerPick}) {
+  const playerColors = ['coral', 'lightgreen'];
+  const currentPlayerTableIndex = players.findIndex(p => p.name === currentPlayer);
 
-function ProductRow({ product }) {
-  const name = product.stocked ? product.name :
-    <span style={{ color: 'red' }}>
-      {product.name}
-    </span>;
+  const onNumberClick = currentPlayerTableIndex === -1 ? () => {} : onCurrentPlayerPick
 
   return (
-    <tr>
-      <td>{name}</td>
-      <td>{product.price}</td>
-    </tr>
+    <div className={`table ${currentPlayerTableIndex > -1 ? 'playable' : ''}`}>
+      <h1>Table {tableIndex}/{tableCount}</h1>
+      <TablePlayer color={playerColors[0]} player={players[0].name} />
+      <div id="numbers">
+        {Array(10).fill(0).map((d, i) => <TableNumberTile number={i} key={"number-" + i} color={players[0].pick === i ? playerColors[0] : (players[1].pick === i ? playerColors[1] : 'transparent')} onClick={onNumberClick} />)}
+      </div>
+      <TablePlayer color={playerColors[1]} player={players[1].name} />
+    </div>
   );
 }
-
-function ProductTable({ products, filterText, inStockOnly }) {
-  const rows = [];
-  let lastCategory = null;
-
-  products.forEach((product) => {
-    if (
-      product.name.toLowerCase().indexOf(
-        filterText.toLowerCase()
-      ) === -1
-    ) {
-      return;
-    }
-    if (inStockOnly && !product.stocked) {
-      return;
-    }
-    if (product.category !== lastCategory) {
-      rows.push(
-        <ProductCategoryRow
-          category={product.category}
-          key={product.category} />
-      );
-    }
-    rows.push(
-      <ProductRow
-        product={product}
-        key={product.name} />
-    );
-    lastCategory = product.category;
-  });
-
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Price</th>
-        </tr>
-      </thead>
-      <tbody>{rows}</tbody>
-    </table>
-  );
-}
-
-function SearchBar({ filterText, inStockOnly, onFilterChange }) {
-  return (
-    <form>
-      <input
-        type="text"
-        value={filterText}
-        onChange={(e) => onFilterChange(e.target.value)}
-        placeholder="Search..."/>
-      <label>
-        <input
-          type="checkbox"
-          checked={inStockOnly} />
-        {' '}
-        Only show products in stock
-      </label>
-    </form>
-  );
-}
-
-const PRODUCTS = [
-  {category: "Fruits", price: "$1", stocked: true, name: "Apple"},
-  {category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit"},
-  {category: "Fruits", price: "$2", stocked: false, name: "Passionfruit"},
-  {category: "Vegetables", price: "$2", stocked: true, name: "Spinach"},
-  {category: "Vegetables", price: "$4", stocked: false, name: "Pumpkin"},
-  {category: "Vegetables", price: "$1", stocked: true, name: "Peas"}
-];
 
 export default function App() {
-  return <FilterableProductTable products={PRODUCTS} />;
+  const [currentPlayer, setCurrentPlayer] = useState("Matthieu");
+  const [displayedTable, setDisplayedTable] = useState(1);
+  const [tables, setTables] = useState([
+    {
+      index: 1,
+      players: [{
+        name:"Isa",
+        pick: null
+      }, {
+        name:"Matthieu",
+        pick: null
+      }]
+    },
+    {
+      index: 2,
+      players: [{name:"Bom", pick:3}, {name:"Ugo", pick: null}],
+    },
+    {
+      index: 3,
+      players: [{name:"Jules", pick:1}, {name:"Michael", pick:3}],
+    },
+    {
+      index: 4,
+      players: [{name:"Camille", pick:3}, {name:"Poul3t", pick:5}],
+    }
+  ]);
+
+  const onCurrentPlayerPick = (pickedNumber) => {
+    const newTables = structuredClone(tables);
+    newTables.some((table) => {
+      return table.players.some(player => {
+        if(player.name === currentPlayer) {
+          player.pick = pickedNumber;
+          return true;
+        }
+        return false;
+      })
+    });
+    setTables(newTables);
+  }
+
+  return <>
+    <div id="tables">
+      {tables.map((t) => <Table tableIndex={t.index} tableCount={tables.length} key={"table-" + t.index} players={t.players} currentPlayer={currentPlayer} onCurrentPlayerPick={onCurrentPlayerPick} />)}
+    </div>
+  </>
 }

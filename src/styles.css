@@ -1,90 +1,36 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
-}
-
-h1 {
-  margin-top: 0;
-  font-size: 22px;
-}
-
-h2 {
-  margin-top: 0;
-  font-size: 20px;
-}
-
-h3 {
-  margin-top: 0;
-  font-size: 18px;
-}
-
-h4 {
-  margin-top: 0;
-  font-size: 16px;
-}
-
-h5 {
-  margin-top: 0;
-  font-size: 14px;
-}
-
-h6 {
-  margin-top: 0;
-  font-size: 12px;
-}
-
-code {
-  font-size: 1.2em;
-}
-
-ul {
-  padding-inline-start: 20px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
-}
-
-.square {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-}
-
-.board-row:after {
-  clear: both;
-  content: '';
-  display: table;
-}
-
-.status {
-  margin-bottom: 10px;
-}
-.game {
+#tables {
   display: flex;
-  flex-direction: row;
+  gap: 50px;
+
+  .table {
+    width: 500px;
+    min-width: 500px;
+  }
+}
+#numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  button {
+    margin: 5px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid black;
+    transition: background-color .25s;
+  }
 }
 
-.game-info {
-  margin-left: 20px;
+.table.playable {
+  background-color: lightgrey;
+  #numbers {
+
+    button {
+      cursor: pointer;
+
+      &:hover {
+        border-color: red;
+      }
+    }
+  }
 }
