@@ -9,7 +9,7 @@ type Player = {
 
 type TablePlayer = {
   id: string,
-  pick: number
+  pick: string
 };
 
 type Table = {
@@ -20,7 +20,10 @@ type State = {
   players: {
     [id: string]: Player
   },
-  tables: Table[]
+  tables: Table[],
+  pickOptions: string[],
+  correctPick: string,
+  status: string,
 };
 type SendMessage = (type: string, content: object) => void;
 
@@ -50,10 +53,10 @@ function PlayerNamePicker({handleCurrentPlayerName}) {
   </dialog>
 }
 
-function TableNumberTile({ number, color, onClick }) {
+function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (
-    <button style={{backgroundColor: color}} onClick={() => onClick(number)}>
-      {number}
+    <button style={{backgroundColor: color, boxShadow: isCorrectPick ? '3px 5px 5px red': ''}} onClick={() => onClick(pickOption)}>
+      {pickOption}
     </button>
   );
 }
@@ -66,23 +69,23 @@ function TablePlayer({ color, player }:{color:string, player:string}) {
   );
 }
 
-function Table({tableIndex, tableCount, players, currentPlayer}) {
+function Table({tableIndex, tableCount, players, currentPlayer, pickOptions, correctPick}) {
   const sendMessage = useContext(WebsocketContext);
   const playerColors = ['coral', 'lightgreen'];
   const currentPlayerTableIndex = players.findIndex(p => p.id === currentPlayer.id);
-  const onNumberClick = (number) => {
+  const onOptionClick = (pickOption) => {
     if(currentPlayerTableIndex === -1) {
       return;
     }
-    sendMessage("pick", {privateId: currentPlayer.privateId, number})
+    sendMessage("pick", {privateId: currentPlayer.privateId, pickOption})
   }
 
   return (
     <div className={`table ${currentPlayerTableIndex > -1 ? 'playable' : ''}`}>
       <h1>Table {tableIndex}/{tableCount}</h1>
       <TablePlayer color={playerColors[0]} player={players[0].name} />
-      <div id="numbers">
-        {Array(10).fill(0).map((d, i) => <TableNumberTile number={i} key={"number-" + i} color={players[0].pick === i ? playerColors[0] : (players[1]?.pick === i ? playerColors[1] : 'transparent')} onClick={onNumberClick} />)}
+      <div id="pickOptions">
+        {pickOptions.map((pickOption) => <TableOptionTile pickOption={pickOption} key={pickOption} color={players[0].pick === pickOption ? playerColors[0] : (players[1]?.pick === pickOption ? playerColors[1] : 'transparent')} onClick={onOptionClick} isCorrectPick={pickOption === correctPick}/>)}
       </div>
       {players.length === 2 && <TablePlayer color={playerColors[1]} player={players[1].name} />}
       {players.length === 1 && <TablePlayer color='transparent' player='???' />}
@@ -90,13 +93,23 @@ function Table({tableIndex, tableCount, players, currentPlayer}) {
   );
 }
 
-function GameMasterControls({state}) {
+function GameMasterControls({state}:{state:State}) {
   const sendMessage = useContext(WebsocketContext);
 
-  return <div id="buttons">
-    {state.status === 'picking' && <button onClick={() => sendMessage('status', {status:'moving'})}>Moving between tables</button>}
-    {state.status === 'moving' || state.status === 'unstarted' && <button onClick={() => sendMessage('status', {status:'picking'})}>Picking</button>}
-  </div>
+  if(state.status === 'picking') {
+    return <div id="buttons">
+      <select defaultValue={state.correctPick} onChange={(e) => sendMessage('correctPick', {correctPick: e.target.value})}>
+        <option value="">Pick one...</option>
+        {state.pickOptions.map((pickOption) => <option value={pickOption} key={pickOption}>{pickOption}</option>)}
+      </select>
+      <button onClick={() => sendMessage('status', {status:'moving'})}>Validate answers</button>
+    </div>
+  }
+  else {
+    return <div id="buttons">
+      <button onClick={() => sendMessage('status', {status:'picking'})}>Allow user to pick</button>
+    </div>
+  }
 }
 
 const gameId = document.location.hash.slice(1);
@@ -110,7 +123,10 @@ export default function App() {
 
   const [state, setState] = useState<State>({
     players: {},
-    tables: []
+    tables: [],
+    pickOptions: [],
+    correctPick: null,
+    status: 'unplayed'
   });
 
   function sendMessage(type:string, content:object) {
@@ -166,7 +182,7 @@ export default function App() {
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
     <GameMasterControls state={state} />
     <div id="tables">
-      {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} />)}
+      {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} pickOptions={state.pickOptions} correctPick={state.correctPick}/>)}
     </div>
     </WebsocketContext.Provider>
 }

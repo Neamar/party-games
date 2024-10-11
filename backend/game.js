@@ -18,6 +18,8 @@ import { readFileSync, existsSync, writeFile } from 'fs';
  * @property {"unstarted"|"picking"|"moving"} status
  * @property {Object.<string, Player>} players
  * @property {Table[]} tables
+ * @property {string[]} pickOptions
+ * @property {string?} correctPick
  */
 
 class Game {
@@ -28,6 +30,8 @@ class Game {
    */
   state = {
     status: "moving",
+    pickOptions: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    correctPick: null,
     players: {},
     tables: Array(),
   }
@@ -87,8 +91,8 @@ class Game {
         requireBroadcast = this.state.tables.some(t => {
           return t.players.some(p => {
             if (p.id === player.id) {
-              if (!t.players.some(t => t.pick === content.number)) {
-                p.pick = content.number;
+              if (!t.players.some(t => t.pick === content.pickOption)) {
+                p.pick = content.pickOption;
                 return true;
               }
             }
@@ -97,6 +101,10 @@ class Game {
       },
       'status': () => {
         this.state.status = content.status;
+        requireBroadcast = true;
+      },
+      'correctPick': () => {
+        this.state.correctPick = content.correctPick;
         requireBroadcast = true;
       }
     }
