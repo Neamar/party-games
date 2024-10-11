@@ -1,5 +1,31 @@
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import './App.css'
+
+type Player = {
+  name: string,
+  id: string,
+  privateId?: string
+};
+
+type TablePlayer = {
+  id: string,
+  pick: number
+};
+
+type Table = {
+  index: number,
+  players: TablePlayer[]
+};
+type State = {
+  players: {
+    [id: string]: Player
+  },
+  tables: Table[]
+};
+type SendMessage = (type: string, content: object) => void;
+
+export const WebsocketContext = createContext<SendMessage>(() => {})
+
 
 function PlayerNamePicker({handleCurrentPlayerName}) {
   const dialogRef = useRef(null);
@@ -40,7 +66,8 @@ function TablePlayer({ color, player }:{color:string, player:string}) {
   );
 }
 
-function Table({tableIndex, tableCount, players, currentPlayer, sendMessage}) {
+function Table({tableIndex, tableCount, players, currentPlayer}) {
+  const sendMessage = useContext(WebsocketContext)
   const playerColors = ['coral', 'lightgreen'];
   const currentPlayerTableIndex = players.findIndex(p => p.id === currentPlayer.id);
   const onNumberClick = (number) => {
@@ -65,34 +92,21 @@ function Table({tableIndex, tableCount, players, currentPlayer, sendMessage}) {
 
 export default function App() {
   const connection = useRef(null);
-  const [currentPlayer, setCurrentPlayer] = useState({name:'', id: '', privateId: ''});
+  const [currentPlayer, setCurrentPlayer] = useState<Player>({name:'', id: '', privateId: ''});
   // const [displayedTableIndex, setDisplayedTableIndex] = useState(1);
 
-  const [state, setState] = useState({
-    players: {
-      'isa': {name:'Isa'},
-      'matthieu': {name:'Matthieu'},
-      'ugo': {name:'Ugo'},
-      'bom': {name:'Bom'},
-    },
-    tables: [
-      {
-        index: 1,
-        players: [{id:'isa', pick:null}, {id:'matthieu',pick:null}]
-      },
-      {
-        index: 2,
-        players: [{id:'bom', pick:3}, {id:'ugo',pick:5}]
-      },
-    ]
+
+  const [state, setState] = useState<State>({
+    players: {},
+    tables: []
   });
 
-  function sendMessage(type, content) {
+  function sendMessage(type:string, content:object) {
     connection.current.send(JSON.stringify({type, content}));
   }
 
-  const handleCurrentPlayerName = (name) => {
-    const player = {
+  const handleCurrentPlayerName = (name:string) => {
+    const player:Player = {
       name,
       id: Math.random().toString(),
       privateId: Math.random().toString(),
@@ -117,10 +131,10 @@ export default function App() {
     return () => socket.readyState === socket.OPEN && socket.close();
   }, []);
 
-  return <>
+  return <WebsocketContext.Provider value={sendMessage}>
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
     <div id="tables">
-      {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} sendMessage={sendMessage} />)}
+      {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} />)}
     </div>
-  </>
+    </WebsocketContext.Provider>
 }
