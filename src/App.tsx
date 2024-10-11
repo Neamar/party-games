@@ -60,14 +60,14 @@ function TableNumberTile({ number, color, onClick }) {
 
 function TablePlayer({ color, player }:{color:string, player:string}) {
   return (
-    <div style={{backgroundColor: color, textAlign: "center"}}>
+    <div className="tablePlayer" style={{backgroundColor: color}}>
       {player}
     </div>
   );
 }
 
 function Table({tableIndex, tableCount, players, currentPlayer}) {
-  const sendMessage = useContext(WebsocketContext)
+  const sendMessage = useContext(WebsocketContext);
   const playerColors = ['coral', 'lightgreen'];
   const currentPlayerTableIndex = players.findIndex(p => p.id === currentPlayer.id);
   const onNumberClick = (number) => {
@@ -90,9 +90,21 @@ function Table({tableIndex, tableCount, players, currentPlayer}) {
   );
 }
 
+function GameMasterControls({state}) {
+  const sendMessage = useContext(WebsocketContext);
+
+  return <div id="buttons">
+    {state.status === 'picking' && <button onClick={() => sendMessage('status', {status:'moving'})}>Moving between tables</button>}
+    {state.status === 'moving' || state.status === 'unstarted' && <button onClick={() => sendMessage('status', {status:'picking'})}>Picking</button>}
+  </div>
+}
+
+const gameId = document.location.hash.slice(1);
+const localStoragePlayerKey = `game/${gameId}`;
+
 export default function App() {
-  const connection = useRef(null);
-  const [currentPlayer, setCurrentPlayer] = useState<Player>({name:'', id: '', privateId: ''});
+  const connection = useRef<WebSocket>(null);
+  const [currentPlayer, setCurrentPlayer] = useState<Player>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});
   // const [displayedTableIndex, setDisplayedTableIndex] = useState(1);
 
 
@@ -113,26 +125,46 @@ export default function App() {
     };
     sendMessage("player", player);
     setCurrentPlayer(player);
+    localStorage.setItem(localStoragePlayerKey, JSON.stringify(player));
   }
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:9001/" + document.location.hash.slice(1));
+    const onClose = () => {
+      // Recreate connection
+      createSocket();
+    };
 
-    // Listen for messages
-    socket.addEventListener("message", (event) => {
+    const onMessage = (event) => {
       const message = JSON.parse(event.data);
       if(message.type === "state") {
         setState(message.content);
       }
-    });
+    };
 
-    connection.current = socket;
+    const createSocket = () => {
+      const socket = new WebSocket("ws://localhost:9001/" + gameId);
 
-    return () => socket.readyState === socket.OPEN && socket.close();
+      // Listen for messages
+      socket.addEventListener("message", onMessage);
+
+      socket.addEventListener("close", onClose);
+      connection.current = socket;
+    }
+    createSocket();
+
+    return () => {
+      if(connection.current?.readyState === connection.current?.OPEN) {
+        // Do not recreate the socket if closing from client
+        connection.current.removeEventListener("close", onClose);
+        connection.current.removeEventListener("message", onMessage);
+        connection.current.close();
+      }
+    }
   }, []);
 
   return <WebsocketContext.Provider value={sendMessage}>
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
+    <GameMasterControls state={state} />
     <div id="tables">
       {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} />)}
     </div>

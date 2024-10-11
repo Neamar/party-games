@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFile } from 'fs';
 
 /**
  * @typedef {object} Player
@@ -15,6 +15,7 @@ import { readFileSync, existsSync } from 'fs';
  * @property {TablePlayer[]} players
  *
  * @typedef {object} State
+ * @property {"unstarted"|"picking"|"moving"} status
  * @property {Object.<string, Player>} players
  * @property {Table[]} tables
  */
@@ -26,6 +27,7 @@ class Game {
    * @type {State}
    */
   state = {
+    status: "moving",
     players: {},
     tables: Array(),
   }
@@ -34,6 +36,7 @@ class Game {
   #ws = new Set();
 
   constructor(id) {
+
     this.id = id.replace(/[^0-9]/g, '');
     this.pathOnDisk = `/tmp/game-${id}.json`
     if (existsSync(this.pathOnDisk)) {
@@ -76,6 +79,7 @@ class Game {
         requireBroadcast = true;
       },
       'pick': () => {
+        // Pick a tile on the table
         const player = this.getPlayerByPrivateId(content.privateId);
         if (!player) {
           return;
@@ -90,6 +94,10 @@ class Game {
             }
           });
         });
+      },
+      'status': () => {
+        this.state.status = content.status;
+        requireBroadcast = true;
       }
     }
 
@@ -109,6 +117,11 @@ class Game {
 
   broadcast(type, content) {
     this.#ws.forEach(ws => this.send(ws, type, content));
+    writeFile(this.pathOnDisk, JSON.stringify(this.state), (err) => {
+      if (err) {
+        console.error(err)
+      }
+    });
   }
 
   getPlayerByPrivateId(privateId) {
