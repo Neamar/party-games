@@ -64,6 +64,7 @@ class Game {
         // Add new player to the game
         if (this.state.players[content.id]) {
           // Trying to impersonate someone?
+          // User already exists.
           return;
         }
         this.state.players[content.id] = content;
@@ -80,6 +81,10 @@ class Game {
         return true;
       },
       'pick': () => {
+        if (this.state.status !== 'picking') {
+          return;
+        }
+
         // Pick a tile on the table
         const player = this.getPlayerByPrivateId(content.privateId);
         if (!player) {

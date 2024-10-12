@@ -26,7 +26,7 @@ export type State = {
   tables: Table[],
   pickOptions: string[],
   correctPick: string,
-  status: string,
+  status: ('unplayed'|'picking'|'moving'),
 };
 type SendMessage = (type: string, content: object) => void;
 
@@ -138,12 +138,9 @@ export default function App() {
             }
         }}>
           <Table
-            tableIndex={index + 1}
-            tableCount={state.tables.length}
-            players={t.players.map(p => ({...p, name:state.players[p.id].name}))}
+            tableIndex={index}
+            state={state}
             currentPlayer={currentPlayer}
-            pickOptions={state.pickOptions}
-            correctPick={state.correctPick}
           />
         </div>)
        )}

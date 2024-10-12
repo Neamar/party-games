@@ -12,20 +12,24 @@
   flex-wrap: wrap;
   justify-content: center;
 
-  button {
+  .pickOption {
     margin: 5px;
     padding: 10px;
     text-align: center;
     border: 1px solid black;
     transition: background-color .25s;
+    cursor: not-allowed;
   }
 }
 
-.table.playable {
+.table.currentPlayer {
   background-color: lightgrey;
+}
+
+.table.active.currentPlayer {
   #pickOptions {
 
-    button {
+    .pickOption {
       cursor: pointer;
 
       &:hover {
