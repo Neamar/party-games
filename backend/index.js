@@ -44,15 +44,7 @@ const app = uWS
   .any("/", (res, req) => {
     // const game = req.getParameter((0));
     res.end(`
-<script>
-const exampleSocket = new WebSocket("ws://localhost:9001/123456");
-exampleSocket.onmessage = (event) => {
-  document.write(event.data + '<br>');
-};
-exampleSocket.onopen = (event) => {
-  exampleSocket.send("coucou la forme")
-};
-</script>
+This is not the page you're looking for.
 `);
   })
   .listen(port, (token) => {
