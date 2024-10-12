@@ -98,7 +98,27 @@ class Game {
         });
       },
       'status': () => {
-        this.state.status = content.status;
+        const state = this.state;
+        state.status = content.status;
+
+        if (state.status === 'moving' && state.correctPick) {
+          /**
+           * initialize new tables
+           * @type Table[]
+           */
+          const newTables = state.tables.map(() => ({ players: [] }))
+          state.tables.forEach((table, index) => {
+            // find winner on table
+            const winnerIndex = (table.players[0].pick === state.correctPick) ? 0 : 1;
+            table.players[0].pick = null;
+            table.players[1].pick = null;
+            newTables[Math.max(0, index - 1)].players.push(table.players[winnerIndex]); // you go up
+            newTables[Math.min(newTables.length - 1, index + 1)].players.push(table.players[1 - winnerIndex]); // you go down
+          });
+          state.tables = newTables;
+          // Reset picks
+          state.correctPick = null;
+        }
         requireBroadcast = true;
       },
       'correctPick': () => {

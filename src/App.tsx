@@ -184,5 +184,5 @@ export default function App() {
     <div id="tables">
       {state.tables.map((t, index) => <Table tableIndex={index + 1} tableCount={state.tables.length} key={"table-" + index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} pickOptions={state.pickOptions} correctPick={state.correctPick}/>)}
     </div>
-    </WebsocketContext.Provider>
+  </WebsocketContext.Provider>
 }
