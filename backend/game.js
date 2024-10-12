@@ -57,7 +57,7 @@ class Game {
   }
 
   receive(message) {
-    const { type, content } = JSON.parse(message);
+    const { type, content } = message;
 
     const types = {
       'player': () => {
@@ -113,11 +113,18 @@ class Game {
           const newTables = state.tables.map(() => ({ players: [] }))
           state.tables.forEach((table, index) => {
             // find winner on table
-            const winnerIndex = (table.players[0].pick === state.correctPick) ? 0 : 1;
-            table.players[0].pick = null;
-            table.players[1].pick = null;
-            newTables[Math.max(0, index - 1)].players.push(table.players[winnerIndex]); // you go up
-            newTables[Math.min(newTables.length - 1, index + 1)].players.push(table.players[1 - winnerIndex]); // you go down
+            if (table.players.length === 1) {
+              // Only one at the table! ez, you win
+              table.players[0].pick = null;
+              newTables[Math.max(0, index - 1)].players.push(table.players[0]); // you go up
+            }
+            else {
+              const winnerIndex = (table.players[0].pick === state.correctPick) ? 0 : 1;
+              table.players[0].pick = null;
+              table.players[1].pick = null;
+              newTables[Math.max(0, index - 1)].players.push(table.players[winnerIndex]); // you go up
+              newTables[Math.min(newTables.length - 1, index + 1)].players.push(table.players[1 - winnerIndex]); // you go down
+            }
           });
           state.tables = newTables;
           // Reset picks

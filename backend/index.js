@@ -2,9 +2,29 @@
 
 import uWS from "uWebSockets.js";
 import { getGameById } from './game.js';
+import { readdir } from 'node:fs/promises';
+import { readFile } from 'fs';
+import { promisify } from 'util';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+
+const __filename = fileURLToPath(import.meta.url);
+export const distFolder = `${dirname(__filename)}/../dist`;
+
+const files = await readdir(distFolder, { recursive: true });
+const content = files.reduce((acc, file) => {
+  try {
+    acc[file] = readFileSync(distFolder + '/' + file);
+  } catch (e) {
+    // skip directories
+  }
+  return acc;
+}, {})
+
 const port = parseInt(process.env.PORT || "") || 9001;
 
-const app = uWS
+uWS
   ./*SSL*/ App({
     key_file_name: "misc/key.pem",
     cert_file_name: "misc/cert.pem",
@@ -30,8 +50,12 @@ const app = uWS
       getGameById(ws.gameId).addConnection(ws);
     },
     message: (ws, message, isBinary) => {
-      const decodedMessage = Buffer.from(message).toString();
-      getGameById(ws.gameId).receive(decodedMessage);
+      try {
+        const decodedMessage = JSON.parse(Buffer.from(message).toString());
+        getGameById(ws.gameId).receive(decodedMessage);
+      } catch (e) {
+        console.log("Invalid message received, skipping", e);
+      }
     },
     drain: (ws) => {
       console.log("WebSocket backpressure: " + ws.getBufferedAmount());
@@ -41,11 +65,19 @@ const app = uWS
       getGameById(ws.gameId).removeConnection(ws);
     },
   })
-  .any("/", (res, req) => {
-    // const game = req.getParameter((0));
-    res.end(`
-This is not the page you're looking for.
-`);
+  .any("/*", async (res, req) => {
+    const url = req.getUrl().slice(1);
+    console.log(url);
+    if (content[url]) {
+      if (url.endsWith('.js')) {
+        res.writeHeader('Content-Type', 'text/javascript');
+      }
+      res.end(content[url]);
+    }
+    else {
+      res.writeStatus('404');
+      res.end('Not Found');
+    }
   })
   .listen(port, (token) => {
     if (token) {
