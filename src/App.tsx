@@ -38,9 +38,8 @@ const localStoragePlayerKey = `game/${gameId}`;
 
 export default function App() {
   const connection = useRef<WebSocket>(null);
+  const tablesRef = useRef(new Map<number, HTMLDivElement>());
   const [currentPlayer, setCurrentPlayer] = useState<Player>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});
-  // const [displayedTableIndex, setDisplayedTableIndex] = useState(1);
-
 
   const [state, setState] = useState<State>({
     players: {},
@@ -51,6 +50,7 @@ export default function App() {
   });
 
   function sendMessage(type:string, content:object) {
+    // todo: should queue message if connection isn't open
     connection.current.send(JSON.stringify({type, content}));
   }
 
@@ -65,6 +65,11 @@ export default function App() {
     localStorage.setItem(localStoragePlayerKey, JSON.stringify(player));
   }
 
+  /**
+   * Websocket handling:
+   * * reconnect on close
+   * * update state as needed
+   */
   useEffect(() => {
     const onClose = () => {
       // Recreate connection
@@ -99,11 +104,49 @@ export default function App() {
     }
   }, []);
 
+  const currentPlayerTableIndex = state.tables.findIndex((table) => table.players.some(p => currentPlayer.id === p.id));
+  /**
+   * Scroll to table on table change
+   */
+  useEffect(() => {
+    const t = tablesRef.current.get(currentPlayerTableIndex);
+    if(!t) {
+      return;
+    }
+
+    t.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [currentPlayerTableIndex]);
+
   return <WebsocketContext.Provider value={sendMessage}>
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
     <GameMasterControls state={state} />
     <div id="tables">
-      {state.tables.map((t, index) => <Table tableIndex={index + 1} tableCount={state.tables.length} key={"table-" + index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} pickOptions={state.pickOptions} correctPick={state.correctPick}/>)}
+      {state.tables.map((t, index) => (
+        <div
+          key={"table-" + index}
+          ref={(node) => {
+            if (node) {
+              // Add to the Map
+              tablesRef.current.set(index, node);
+            } else {
+              // Remove from the Map
+              tablesRef.current.delete(index);
+            }
+        }}>
+          <Table
+            tableIndex={index + 1}
+            tableCount={state.tables.length}
+            players={t.players.map(p => ({...p, name:state.players[p.id].name}))}
+            currentPlayer={currentPlayer}
+            pickOptions={state.pickOptions}
+            correctPick={state.correctPick}
+          />
+        </div>)
+       )}
     </div>
   </WebsocketContext.Provider>
 }

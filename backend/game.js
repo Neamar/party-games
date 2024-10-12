@@ -59,7 +59,6 @@ class Game {
   receive(message) {
     const { type, content } = JSON.parse(message);
 
-    let requireBroadcast = false;
     const types = {
       'player': () => {
         // Add new player to the game
@@ -78,7 +77,7 @@ class Game {
           lastTable.players.push({ id: content.id, pick: null });
         }
 
-        requireBroadcast = true;
+        return true;
       },
       'pick': () => {
         // Pick a tile on the table
@@ -86,7 +85,7 @@ class Game {
         if (!player) {
           return;
         }
-        requireBroadcast = this.state.tables.some(t => {
+        return this.state.tables.some(t => {
           return t.players.some(p => {
             if (p.id === player.id) {
               if (!t.players.some(t => t.pick === content.pickOption)) {
@@ -119,15 +118,23 @@ class Game {
           // Reset picks
           state.correctPick = null;
         }
-        requireBroadcast = true;
+        return true;
       },
       'correctPick': () => {
         this.state.correctPick = content.correctPick;
-        requireBroadcast = true;
+        return true;
+      },
+      'shuffle': () => {
+        const tables = this.state.tables;
+        for (let i = tables.length - 1; i >= 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tables[i], tables[j]] = [tables[j], tables[i]];
+        }
+        return true;
       }
     }
 
-    types[type]();
+    const requireBroadcast = types[type]();
     if (requireBroadcast) {
       this.broadcast("state", this.state);
     }
