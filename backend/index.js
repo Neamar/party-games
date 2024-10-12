@@ -3,8 +3,6 @@
 import uWS from "uWebSockets.js";
 import { getGameById } from './game.js';
 import { readdir } from 'node:fs/promises';
-import { readFile } from 'fs';
-import { promisify } from 'util';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync } from 'node:fs';
@@ -68,9 +66,8 @@ uWS
     },
   })
   .any("/*", async (res, req) => {
-    console.log('<--' + req.getUrl());
-    const url = req.getUrl().slice(1);
-    console.log(url);
+    console.log('<-- ' + req.getUrl());
+    const url = req.getUrl() == '/' ? 'index.html' : req.getUrl().slice(1);
     if (content[url]) {
       if (url.endsWith('.js')) {
         res.writeHeader('Content-Type', 'text/javascript');

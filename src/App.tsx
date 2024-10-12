@@ -1,5 +1,5 @@
 import { createContext, useEffect, useRef, useState } from 'react';
-import './App.css'
+import './App.css';
 import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
@@ -30,7 +30,7 @@ export type State = {
 };
 type SendMessage = (type: string, content: object) => void;
 
-export const WebsocketContext = createContext<SendMessage>(() => {})
+export const WebsocketContext = createContext<SendMessage>(() => {});
 
 
 const gameId = document.location.hash.slice(1);
@@ -63,7 +63,7 @@ export default function App() {
     sendMessage("player", player);
     setCurrentPlayer(player);
     localStorage.setItem(localStoragePlayerKey, JSON.stringify(player));
-  }
+  };
 
   /**
    * Websocket handling:
@@ -84,14 +84,16 @@ export default function App() {
     };
 
     const createSocket = () => {
-      const socket = new WebSocket("ws://localhost:9001/" + gameId);
+      const wsBaseUrl = document.location.hostname === 'localhost' ? "ws://localhost:9001" : "wss://" + document.location.hostname;
+      console.log(wsBaseUrl, `${wsBaseUrl}/${gameId}`);
+      const socket = new WebSocket(`${wsBaseUrl}/${gameId}`);
 
       // Listen for messages
       socket.addEventListener("message", onMessage);
 
       socket.addEventListener("close", onClose);
       connection.current = socket;
-    }
+    };
     createSocket();
 
     return () => {
@@ -101,7 +103,7 @@ export default function App() {
         connection.current.removeEventListener("message", onMessage);
         connection.current.close();
       }
-    }
+    };
   }, []);
 
   const currentPlayerTableIndex = state.tables.findIndex((table) => table.players.some(p => currentPlayer.id === p.id));
@@ -145,5 +147,5 @@ export default function App() {
         </div>)
        )}
     </div>
-  </WebsocketContext.Provider>
+  </WebsocketContext.Provider>;
 }
