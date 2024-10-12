@@ -29,8 +29,8 @@ export default function Table({state, currentPlayer, tableIndex}:{state:State, c
     if(!canPlay || !isCurrentPlayerInTable) {
       return;
     }
-    sendMessage("pick", {privateId: currentPlayer.privateId, pickOption})
-  }
+    sendMessage("pick", {privateId: currentPlayer.privateId, pickOption});
+  };
 
   return (
     <div className={`table ${state.status==='picking' ? 'active' : 'inactive'} ${isCurrentPlayerInTable ? 'currentPlayer' : ''}`}>

@@ -3,6 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import stylisticJs from '@stylistic/eslint-plugin-js'
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -14,6 +15,7 @@ export default tseslint.config(
       globals: globals.browser,
     },
     plugins: {
+      '@stylistic/js': stylisticJs,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
@@ -23,6 +25,7 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      '@stylistic/js/semi': ["error", "always"]
     },
   },
 )

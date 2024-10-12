@@ -22,5 +22,5 @@ export default function GameMasterControls({state}:{state:State}) {
 
   return <div id="buttons">
     {actions}
-  </div>
+  </div>;
 }
