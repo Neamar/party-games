@@ -1,22 +1,25 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import './App.css'
+import GameMasterControls from './GameMasterControls';
+import PlayerNamePicker from './PlayerNamePicker';
+import Table from './Table';
 
-type Player = {
+export type Player = {
   name: string,
   id: string,
   privateId?: string
 };
 
-type TablePlayer = {
+export type TablePlayer = {
   id: string,
   pick: string
 };
 
-type Table = {
+export type Table = {
   index: number,
   players: TablePlayer[]
 };
-type State = {
+export type State = {
   players: {
     [id: string]: Player
   },
@@ -29,88 +32,6 @@ type SendMessage = (type: string, content: object) => void;
 
 export const WebsocketContext = createContext<SendMessage>(() => {})
 
-
-function PlayerNamePicker({handleCurrentPlayerName}) {
-  const dialogRef = useRef(null);
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    dialog.showModal();
-    return () => dialog.close();
-  }, []);
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    handleCurrentPlayerName(event.currentTarget.elements['player-name'].value)
-  }
-
-  return <dialog ref={dialogRef}>
-    <h1>Welcome to UpDown!</h1>
-    <p>Pick a name to get started.</p>
-    <form onSubmit={handleSubmit}>
-      <input type="text" id="player-name"/>
-      <input type="submit" value="Submit" />
-    </form>
-  </dialog>
-}
-
-function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
-  return (
-    <button style={{backgroundColor: color, boxShadow: isCorrectPick ? '0px 0px 17px 5px rgba(45,255,196,0.9)': ''}} onClick={() => onClick(pickOption)}>
-      {pickOption}
-    </button>
-  );
-}
-
-function TablePlayer({ color, player }:{color:string, player:string}) {
-  return (
-    <div className="tablePlayer" style={{backgroundColor: color}}>
-      {player}
-    </div>
-  );
-}
-
-function Table({tableIndex, tableCount, players, currentPlayer, pickOptions, correctPick}) {
-  const sendMessage = useContext(WebsocketContext);
-  const playerColors = ['coral', 'lightgreen'];
-  const currentPlayerTableIndex = players.findIndex(p => p.id === currentPlayer.id);
-  const onOptionClick = (pickOption) => {
-    if(currentPlayerTableIndex === -1) {
-      return;
-    }
-    sendMessage("pick", {privateId: currentPlayer.privateId, pickOption})
-  }
-
-  return (
-    <div className={`table ${currentPlayerTableIndex > -1 ? 'playable' : ''}`}>
-      <h1>Table {tableIndex}/{tableCount}</h1>
-      <TablePlayer color={playerColors[0]} player={players[0].name} />
-      <div id="pickOptions">
-        {pickOptions.map((pickOption) => <TableOptionTile pickOption={pickOption} key={pickOption} color={players[0].pick === pickOption ? playerColors[0] : (players[1]?.pick === pickOption ? playerColors[1] : 'transparent')} onClick={onOptionClick} isCorrectPick={pickOption === correctPick}/>)}
-      </div>
-      {players.length === 2 && <TablePlayer color={playerColors[1]} player={players[1].name} />}
-      {players.length === 1 && <TablePlayer color='transparent' player='???' />}
-    </div>
-  );
-}
-
-function GameMasterControls({state}:{state:State}) {
-  const sendMessage = useContext(WebsocketContext);
-
-  if(state.status === 'picking') {
-    return <div id="buttons">
-      <select defaultValue={state.correctPick} onChange={(e) => sendMessage('correctPick', {correctPick: e.target.value})}>
-        <option value="">Pick one...</option>
-        {state.pickOptions.map((pickOption) => <option value={pickOption} key={pickOption}>{pickOption}</option>)}
-      </select>
-      <button onClick={() => sendMessage('status', {status:'moving'})}>Validate answers</button>
-    </div>
-  }
-  else {
-    return <div id="buttons">
-      <button onClick={() => sendMessage('status', {status:'picking'})}>Allow user to pick</button>
-    </div>
-  }
-}
 
 const gameId = document.location.hash.slice(1);
 const localStoragePlayerKey = `game/${gameId}`;
