@@ -20,7 +20,9 @@ const content = files.reduce((acc, file) => {
     // skip directories
   }
   return acc;
-}, {})
+}, {});
+
+console.log("Will serve files", Object.keys(content));
 
 const port = parseInt(process.env.PORT || "") || 9001;
 
@@ -66,6 +68,7 @@ uWS
     },
   })
   .any("/*", async (res, req) => {
+    console.log('<--' + req.getUrl());
     const url = req.getUrl().slice(1);
     console.log(url);
     if (content[url]) {
@@ -76,7 +79,7 @@ uWS
     }
     else {
       res.writeStatus('404');
-      res.end('Not Found');
+      res.end("There ain't a game here.");
     }
   })
   .listen(port, (token) => {
