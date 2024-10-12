@@ -11,7 +11,6 @@ import { readFileSync, existsSync, writeFile } from 'fs';
  * @property {string?} pick player current pick
  *
  * @typedef {object} Table
- * @property {number} index
  * @property {TablePlayer[]} players
  *
  * @typedef {object} State
@@ -72,7 +71,6 @@ class Game {
         const lastTable = this.state.tables?.[this.state.tables.length - 1];
         if (!lastTable || lastTable.players.length === 2) {
           this.state.tables.push({
-            index: this.state.tables.length + 1,
             players: [{ id: content.id, pick: null }]
           })
         }

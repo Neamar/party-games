@@ -55,7 +55,7 @@ function PlayerNamePicker({handleCurrentPlayerName}) {
 
 function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (
-    <button style={{backgroundColor: color, boxShadow: isCorrectPick ? '3px 5px 5px red': ''}} onClick={() => onClick(pickOption)}>
+    <button style={{backgroundColor: color, boxShadow: isCorrectPick ? '0px 0px 17px 5px rgba(45,255,196,0.9)': ''}} onClick={() => onClick(pickOption)}>
       {pickOption}
     </button>
   );
@@ -182,7 +182,7 @@ export default function App() {
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
     <GameMasterControls state={state} />
     <div id="tables">
-      {state.tables.map((t) => <Table tableIndex={t.index} tableCount={state.tables.length} key={"table-" + t.index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} pickOptions={state.pickOptions} correctPick={state.correctPick}/>)}
+      {state.tables.map((t, index) => <Table tableIndex={index + 1} tableCount={state.tables.length} key={"table-" + index} players={t.players.map(p => ({...p, name:state.players[p.id].name}))} currentPlayer={currentPlayer} pickOptions={state.pickOptions} correctPick={state.correctPick}/>)}
     </div>
     </WebsocketContext.Provider>
 }
