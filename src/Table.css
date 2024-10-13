@@ -1,0 +1,33 @@
+.pickOptions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .pickOption {
+    margin: 5px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid black;
+    transition: background-color .25s;
+    cursor: not-allowed;
+  }
+}
+
+.table.currentPlayer {
+  background-color: lightgrey;
+}
+
+.table.active.currentPlayer {
+  .pickOptions {
+    .pickOption {
+      cursor: pointer;
+      &:hover {
+        border-color: red;
+      }
+    }
+  }
+}
+
+.tablePlayer {
+  text-align: center;
+}

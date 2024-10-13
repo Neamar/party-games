@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { Player, State, WebsocketContext } from './App';
+import './Table.css';
 
 function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (
@@ -36,7 +37,7 @@ export default function Table({state, currentPlayer, tableIndex}:{state:State, c
     <div className={`table ${state.status==='picking' ? 'active' : 'inactive'} ${isCurrentPlayerInTable ? 'currentPlayer' : ''}`}>
       <h1>Table {tableIndex + 1}/{state.tables.length}</h1>
       <TablePlayer color={playerColors[0]} player={players[0].name} />
-      <div id="pickOptions">
+      <div className="pickOptions">
         {state.pickOptions.map((pickOption) => <TableOptionTile pickOption={pickOption} key={pickOption} color={players[0].pick === pickOption ? playerColors[0] : (players[1]?.pick === pickOption ? playerColors[1] : 'transparent')} onClick={onOptionClick} isCorrectPick={pickOption === state.correctPick}/>)}
       </div>
       {players.length === 2 && <TablePlayer color={playerColors[1]} player={players[1].name} />}
