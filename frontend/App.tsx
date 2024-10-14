@@ -1,20 +1,17 @@
-import { createContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
 import LoadingScreen from './LoadingScreen';
 import { Player, State } from './types';
+import { WebsocketContext } from './main';
 
-type SendMessage = (type: string, content: object) => void;
-
-export const WebsocketContext = createContext<SendMessage>(() => {});
-
-
-const gameId = document.location.hash.slice(1);
-const localStoragePlayerKey = `game/${gameId}`;
 
 export default function App() {
+  const gameId = document.location.hash.slice(1);
+  const localStoragePlayerKey = `game/${gameId}`;
+
   const connection = useRef<WebSocket>(null);
   const tablesRef = useRef(new Map<number, HTMLDivElement>());
   const [currentPlayer, setCurrentPlayer] = useState<Player>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});

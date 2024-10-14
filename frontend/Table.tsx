@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { WebsocketContext } from './App';
+import { WebsocketContext } from './main';
 import './Table.css';
 import { Player, State } from './types';
 
