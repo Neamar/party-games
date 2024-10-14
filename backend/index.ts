@@ -1,18 +1,21 @@
 import uWS from "uWebSockets.js";
-import { getGameById } from './game.js';
-import { readdir } from 'node:fs/promises';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { readFileSync } from 'node:fs';
+import { getGameById } from "./game.js";
+import { readdir } from "node:fs/promises";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
 
 // Read all files in dist, and serve them directly.
 const __filename = fileURLToPath(import.meta.url);
 export const distFolder = `${dirname(__filename)}/../dist`;
 
+type Content = Record<string, Buffer>;
+
 const files = await readdir(distFolder, { recursive: true });
-const content = files.reduce((acc, file) => {
+const content: Content = files.reduce((acc: Content, file) => {
   try {
-    acc[file] = readFileSync(distFolder + '/' + file);
+    acc[file] = readFileSync(distFolder + "/" + file);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // skip directories
   }
@@ -25,7 +28,7 @@ const port = parseInt(process.env.PORT || "") || 9001;
 
 uWS
   .App()
-  .ws("/:gameId", {
+  .ws<{ gameId: string }>("/:gameId", {
     /* Options */
     compression: uWS.SHARED_COMPRESSOR,
     maxPayloadLength: 16 * 1024 * 1024,
@@ -33,21 +36,21 @@ uWS
     /* Handlers */
     upgrade: (res, req, context) => {
       res.upgrade(
-        { gameId: req.getParameter((0)) }, // pass path to ws object
-        req.getHeader('sec-websocket-key'),
-        req.getHeader('sec-websocket-protocol'),
-        req.getHeader('sec-websocket-extensions'), // 3 headers are used to setup websocket
+        { gameId: req.getParameter(0) }, // pass path to ws object
+        req.getHeader("sec-websocket-key"),
+        req.getHeader("sec-websocket-protocol"),
+        req.getHeader("sec-websocket-extensions"), // 3 headers are used to setup websocket
         context // also used to setup websocket
-      )
+      );
     },
     open: (ws) => {
       console.log("A WebSocket connected!");
-      getGameById(ws.gameId).addConnection(ws);
+      getGameById(ws.getUserData().gameId).addConnection(ws);
     },
-    message: (ws, message, isBinary) => {
+    message: (ws, message) => {
       try {
         const decodedMessage = JSON.parse(Buffer.from(message).toString());
-        getGameById(ws.gameId).receive(decodedMessage);
+        getGameById(ws.getUserData().gameId).receive(decodedMessage);
       } catch (e) {
         console.log("Invalid message received, skipping", e);
       }
@@ -55,22 +58,21 @@ uWS
     drain: (ws) => {
       console.log("WebSocket backpressure: " + ws.getBufferedAmount());
     },
-    close: (ws, code, message) => {
+    close: (ws) => {
       console.log("WebSocket closed");
-      getGameById(ws.gameId).removeConnection(ws);
+      getGameById(ws.getUserData().gameId).removeConnection(ws);
     },
   })
   .any("/*", async (res, req) => {
-    console.log('<-- ' + req.getUrl());
-    const url = req.getUrl() == '/' ? 'index.html' : req.getUrl().slice(1);
+    console.log("<-- " + req.getUrl());
+    const url = req.getUrl() == "/" ? "index.html" : req.getUrl().slice(1);
     if (content[url]) {
-      if (url.endsWith('.js')) {
-        res.writeHeader('Content-Type', 'text/javascript');
+      if (url.endsWith(".js")) {
+        res.writeHeader("Content-Type", "text/javascript");
       }
       res.end(content[url]);
-    }
-    else {
-      res.writeStatus('404');
+    } else {
+      res.writeStatus("404");
       res.end("There ain't a game here.");
     }
   })

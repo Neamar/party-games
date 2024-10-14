@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:backend": "nodemon backend/index.js",
-    "backend": "NODE_ENV=production node backend/index.js",
+    "dev:backend": "vite-node --watch backend/index.ts",
+    "backend": "NODE_ENV=production vite-node backend/index.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -14,7 +14,8 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0"
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0",
+    "vite-node": "^2.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
