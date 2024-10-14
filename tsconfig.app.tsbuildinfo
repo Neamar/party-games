@@ -1,1 +1,1 @@
-{"root":["./frontend/App.tsx","./frontend/GameMasterControls.tsx","./frontend/LoadingScreen.tsx","./frontend/PlayerNamePicker.tsx","./frontend/Table.tsx","./frontend/main.tsx","./frontend/vite-env.d.ts","./vite.config.ts"],"version":"5.6.3"}
+{"root":["./frontend/App.tsx","./frontend/GameMasterControls.tsx","./frontend/LoadingScreen.tsx","./frontend/PlayerNamePicker.tsx","./frontend/Table.tsx","./frontend/main.tsx","./frontend/types.ts","./frontend/vite-env.d.ts","./vite.config.ts"],"version":"5.6.3"}
