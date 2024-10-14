@@ -3,6 +3,7 @@ import './App.css';
 import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
+import LoadingScreen from './LoadingScreen';
 
 export type Player = {
   name: string,
@@ -121,31 +122,39 @@ export default function App() {
       block: "nearest",
       inline: "center",
     });
-  }, [currentPlayerTableIndex]);
+  }, [state.status, currentPlayerTableIndex]);
+
+  let mainContent;
+  if(state.status === 'unplayed') {
+    mainContent = <LoadingScreen players={Object.values(state.players)} currentPlayer={currentPlayer} />;
+  }
+  else {
+    mainContent = <div id="tables">
+    {state.tables.map((t, index) => (
+      <div
+        key={"table-" + index}
+        ref={(node) => {
+          if (node) {
+            // Add to the Map
+            tablesRef.current.set(index, node);
+          } else {
+            // Remove from the Map
+            tablesRef.current.delete(index);
+          }
+      }}>
+        <Table
+          tableIndex={index}
+          state={state}
+          currentPlayer={currentPlayer}
+        />
+      </div>)
+     )}
+  </div>;
+  }
 
   return <WebsocketContext.Provider value={sendMessage}>
     {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
     <GameMasterControls state={state} />
-    <div id="tables">
-      {state.tables.map((t, index) => (
-        <div
-          key={"table-" + index}
-          ref={(node) => {
-            if (node) {
-              // Add to the Map
-              tablesRef.current.set(index, node);
-            } else {
-              // Remove from the Map
-              tablesRef.current.delete(index);
-            }
-        }}>
-          <Table
-            tableIndex={index}
-            state={state}
-            currentPlayer={currentPlayer}
-          />
-        </div>)
-       )}
-    </div>
+    {mainContent}
   </WebsocketContext.Provider>;
 }

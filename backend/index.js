@@ -1,5 +1,3 @@
-/* A quite detailed WebSockets example */
-
 import uWS from "uWebSockets.js";
 import { getGameById } from './game.js';
 import { readdir } from 'node:fs/promises';
@@ -7,6 +5,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync } from 'node:fs';
 
+// Read all files in dist, and serve them directly.
 const __filename = fileURLToPath(import.meta.url);
 export const distFolder = `${dirname(__filename)}/../dist`;
 
@@ -25,11 +24,7 @@ console.log("Will serve files", Object.keys(content));
 const port = parseInt(process.env.PORT || "") || 9001;
 
 uWS
-  ./*SSL*/ App({
-    key_file_name: "misc/key.pem",
-    cert_file_name: "misc/cert.pem",
-    passphrase: "1234",
-  })
+  .App()
   .ws("/:gameId", {
     /* Options */
     compression: uWS.SHARED_COMPRESSOR,
