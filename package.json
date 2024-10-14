@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:backend": "vite-node --watch backend/index.ts",
     "backend": "NODE_ENV=production vite-node backend/index.ts",
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -15,6 +15,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
     "vite-node": "^2.1.2"
   },
   "devDependencies": {
@@ -23,7 +24,6 @@
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^9.11.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.12",

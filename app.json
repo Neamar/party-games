@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/Neamar/party-games",
+  "healthchecks": {
+    "web": [
+      {
+        "type": "startup",
+        "name": "web check",
+        "description": "Checking if the app responds to the / endpoint",
+        "path": "/"
+      }
+    ]
+  }
+}
