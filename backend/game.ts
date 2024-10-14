@@ -7,7 +7,7 @@ class Game {
   id = "0";
 
   state: State = {
-    status: "moving",
+    status: "unplayed",
     pickOptions: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     correctPick: null,
     players: {},

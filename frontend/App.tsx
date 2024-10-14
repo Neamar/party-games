@@ -60,7 +60,6 @@ export default function App() {
 
     const createSocket = () => {
       const wsBaseUrl = document.location.hostname === 'localhost' ? "ws://localhost:9001" : "wss://" + document.location.hostname;
-      console.log(wsBaseUrl, `${wsBaseUrl}/${gameId}`);
       const socket = new WebSocket(`${wsBaseUrl}/${gameId}`);
 
       // Listen for messages
