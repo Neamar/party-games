@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import { Player, State, WebsocketContext } from './App';
+import { WebsocketContext } from './App';
 import './Table.css';
+import { Player, State } from './types';
 
 function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (

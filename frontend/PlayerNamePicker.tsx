@@ -10,7 +10,7 @@ export default function PlayerNamePicker({handleCurrentPlayerName}) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    handleCurrentPlayerName(event.currentTarget.elements['player-name'].value)
+    handleCurrentPlayerName(event.currentTarget.elements['player-name'].value);
   }
 
   return <dialog ref={dialogRef}>
@@ -20,5 +20,5 @@ export default function PlayerNamePicker({handleCurrentPlayerName}) {
       <input type="text" id="player-name"/>
       <input type="submit" value="Submit" />
     </form>
-  </dialog>
+  </dialog>;
 }

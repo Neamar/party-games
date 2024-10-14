@@ -1,5 +1,6 @@
 import { Fragment, useContext } from 'react';
-import { State, WebsocketContext } from './App';
+import { WebsocketContext } from './App';
+import { State } from './types';
 
 export default function GameMasterControls({state}:{state:State}) {
   const sendMessage = useContext(WebsocketContext);

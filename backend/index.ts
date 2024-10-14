@@ -1,9 +1,11 @@
 import uWS from "uWebSockets.js";
-import { getGameById } from "./game.js";
+import { getGameById } from "./game.ts";
 import { readdir } from "node:fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { readFileSync } from "node:fs";
+
+export type WsUserData = { gameId: string };
 
 // Read all files in dist, and serve them directly.
 const __filename = fileURLToPath(import.meta.url);
@@ -15,8 +17,7 @@ const files = await readdir(distFolder, { recursive: true });
 const content: Content = files.reduce((acc: Content, file) => {
   try {
     acc[file] = readFileSync(distFolder + "/" + file);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
+  } catch {
     // skip directories
   }
   return acc;
@@ -28,7 +29,7 @@ const port = parseInt(process.env.PORT || "") || 9001;
 
 uWS
   .App()
-  .ws<{ gameId: string }>("/:gameId", {
+  .ws<WsUserData>("/:gameId", {
     /* Options */
     compression: uWS.SHARED_COMPRESSOR,
     maxPayloadLength: 16 * 1024 * 1024,

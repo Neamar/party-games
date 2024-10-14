@@ -4,31 +4,8 @@ import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
 import LoadingScreen from './LoadingScreen';
+import { Player, State } from './types';
 
-export type Player = {
-  name: string,
-  id: string,
-  privateId?: string
-};
-
-export type TablePlayer = {
-  id: string,
-  pick: string
-};
-
-export type Table = {
-  index: number,
-  players: TablePlayer[]
-};
-export type State = {
-  players: {
-    [id: string]: Player
-  },
-  tables: Table[],
-  pickOptions: string[],
-  correctPick: string,
-  status: ('unplayed'|'picking'|'moving'),
-};
 type SendMessage = (type: string, content: object) => void;
 
 export const WebsocketContext = createContext<SendMessage>(() => {});
