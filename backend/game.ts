@@ -1,6 +1,6 @@
 import uWS from "uWebSockets.js";
 import { readFileSync, existsSync, writeFile } from "fs";
-import { State, Table } from "./types.ts";
+import { State, Table } from "../types.ts";
 import { WsUserData } from "./index.ts";
 
 class Game {

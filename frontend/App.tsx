@@ -4,12 +4,12 @@ import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
 import LoadingScreen from './LoadingScreen';
-import { Player, State } from './types';
+import { Player, State } from '../types';
 import { WebsocketContext } from './main';
 
 
 export default function App() {
-  const gameId = document.location.hash.slice(1);
+  const [gameId] = useState(document.location.hash.slice(1));
   const localStoragePlayerKey = `game/${gameId}`;
 
   const connection = useRef<WebSocket>(null);
@@ -78,7 +78,7 @@ export default function App() {
         connection.current.close();
       }
     };
-  }, []);
+  }, [gameId]);
 
   const currentPlayerTableIndex = state.tables.findIndex((table) => table.players.some(p => currentPlayer.id === p.id));
   /**
@@ -104,23 +104,21 @@ export default function App() {
   else {
     mainContent = <div id="tables">
     {state.tables.map((t, index) => (
-      <div
-        key={"table-" + index}
-        ref={(node) => {
-          if (node) {
-            // Add to the Map
-            tablesRef.current.set(index, node);
-          } else {
-            // Remove from the Map
-            tablesRef.current.delete(index);
-          }
-      }}>
         <Table
           tableIndex={index}
           state={state}
           currentPlayer={currentPlayer}
-        />
-      </div>)
+          key={index}
+          ref={(node) => {
+            if (node) {
+              // Add to the Map
+              tablesRef.current.set(index, node);
+            } else {
+              // Remove from the Map
+              tablesRef.current.delete(index);
+            }
+        }}
+        />)
      )}
   </div>;
   }

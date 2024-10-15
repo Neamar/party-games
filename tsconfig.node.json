@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "backend"
+    "backend",
+    "types.ts"
   ]
 }

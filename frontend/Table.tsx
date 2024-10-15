@@ -1,7 +1,7 @@
-import { useContext } from 'react';
+import { forwardRef, useContext } from 'react';
 import { WebsocketContext } from './main';
 import './Table.css';
-import { Player, State } from './types';
+import { Player, State } from '../types';
 
 function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (
@@ -19,7 +19,8 @@ function TablePlayer({ color, player }:{color:string, player:string}) {
   );
 }
 
-export default function Table({state, currentPlayer, tableIndex}:{state:State, currentPlayer:Player, tableIndex:number}) {
+
+const Table = forwardRef<HTMLDivElement, {state:State, currentPlayer:Player, tableIndex:number}>(({state, currentPlayer, tableIndex}, ref) => {
   const sendMessage = useContext(WebsocketContext);
   const playerColors = ['coral', 'lightgreen'];
   // Retrieve player names
@@ -35,7 +36,7 @@ export default function Table({state, currentPlayer, tableIndex}:{state:State, c
   };
 
   return (
-    <div className={`table ${state.status==='picking' ? 'active' : 'inactive'} ${isCurrentPlayerInTable ? 'currentPlayer' : ''}`}>
+    <div ref={ref} className={`table ${state.status==='picking' ? 'active' : 'inactive'} ${isCurrentPlayerInTable ? 'currentPlayer' : ''}`}>
       <h1>Table {tableIndex + 1}/{state.tables.length}</h1>
       <TablePlayer color={playerColors[0]} player={players[0].name} />
       <div className="pickOptions">
@@ -45,4 +46,6 @@ export default function Table({state, currentPlayer, tableIndex}:{state:State, c
       {players.length === 1 && <TablePlayer color='transparent' player='???' />}
     </div>
   );
-}
+});
+
+export default Table;

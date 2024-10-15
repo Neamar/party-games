@@ -1,5 +1,5 @@
 import './LoadingScreen.css';
-import { Player } from './types';
+import { Player } from '../types';
 
 export default function LoadingScreen({players, currentPlayer}:{players:Player[], currentPlayer:Player}) {
   return <>
