@@ -4,7 +4,7 @@ import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
 import LoadingScreen from './LoadingScreen';
-import { Player, State } from '../types';
+import { Player, State, WSClientToServerMessage } from '../types';
 import { WebsocketContext } from './main';
 
 
@@ -24,18 +24,22 @@ export default function App() {
     status: 'unplayed'
   });
 
-  function sendMessage(type:string, content:object) {
+  function sendMessage(message:WSClientToServerMessage) {
+    if(currentPlayer.privateId) {
+      message.privateId = currentPlayer.privateId;
+    }
+
     // todo: should queue message if connection isn't open
-    connection.current.send(JSON.stringify({type, content}));
+    connection.current.send(JSON.stringify(message));
   }
 
   const handleCurrentPlayerName = (name:string) => {
     const player:Player = {
       name,
       id: Math.random().toString(),
-      privateId: Math.random().toString(),
+      privateId:  Math.random().toString(),
     };
-    sendMessage("player", player);
+    sendMessage({type: "addPlayer", ...player});
     setCurrentPlayer(player);
     localStorage.setItem(localStoragePlayerKey, JSON.stringify(player));
   };

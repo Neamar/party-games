@@ -32,7 +32,7 @@ const Table = forwardRef<HTMLDivElement, {state:State, currentPlayer:Player, tab
     if(!canPlay || !isCurrentPlayerInTable) {
       return;
     }
-    sendMessage("pick", {privateId: currentPlayer.privateId, pickOption});
+    sendMessage({type:"setPlayerPick", privateId: currentPlayer.privateId, pick: pickOption});
   };
 
   return (

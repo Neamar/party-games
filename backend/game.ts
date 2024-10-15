@@ -1,7 +1,17 @@
 import uWS from "uWebSockets.js";
 import { readFileSync, existsSync, writeFile } from "fs";
-import { State, Table } from "../types.ts";
+import {
+  State,
+  Table,
+  WSAddPlayerMessage,
+  WSClientToServerMessage,
+  WSSetCorrectPick,
+  WSSetGameStatus,
+  WSSetPlayerPickMessage,
+  WSShuffleTables,
+} from "../types.ts";
 import { WsUserData } from "./index.ts";
+import assert from "assert";
 
 class Game {
   id = "0";
@@ -34,54 +44,54 @@ class Game {
     this.#ws.delete(ws);
   }
 
-  receive({ type, content }: { type: string; content }) {
+  receive(message: WSClientToServerMessage) {
     const types = {
-      player: () => {
+      addPlayer: (message: WSAddPlayerMessage) => {
         // Add new player to the game
-        if (this.state.players[content.id]) {
-          // Trying to impersonate someone?
-          // User already exists.
-          return;
-        }
-        this.state.players[content.id] = content;
+        assert(!this.state.players[message.id], "User already registered");
+
+        this.state.players[message.id] = {
+          id: message.id,
+          privateId: message.privateId,
+          name: message.name,
+        };
+
         const lastTable = this.state.tables?.[this.state.tables.length - 1];
         if (!lastTable || lastTable.players.length === 2) {
           this.state.tables.push({
-            players: [{ id: content.id, pick: null }],
+            players: [{ id: message.id, pick: null }],
           });
         } else {
-          lastTable.players.push({ id: content.id, pick: null });
+          lastTable.players.push({ id: message.id, pick: null });
         }
 
         return true;
       },
-      pick: () => {
-        if (this.state.status !== "picking") {
-          return;
-        }
+      setPlayerPick: (message: WSSetPlayerPickMessage) => {
+        assert(this.state.status === "picking", "State must be picking");
 
         // Pick a tile on the table
-        const player = this.getPlayerByPrivateId(content.privateId);
-        if (!player) {
-          return;
-        }
+        const player = this.getPlayerByPrivateId(message.privateId);
+        assert(player, "Invalid player id");
+
         return this.state.tables.some((t) => {
           return t.players.some((p) => {
             if (p.id === player.id) {
-              if (!t.players.some((t) => t.pick === content.pickOption)) {
-                p.pick = content.pickOption;
+              if (!t.players.some((t) => t.pick === message.pick)) {
+                p.pick = message.pick;
                 return true;
               }
             }
           });
         });
       },
-      status: () => {
+      setGameStatus: (message: WSSetGameStatus) => {
         const state = this.state;
-        state.status = content.status;
+        state.status = message.status;
 
         if (state.status === "moving" && state.correctPick) {
           /**
+           * apply the actual up and down,
            * initialize new tables
            * @type Table[]
            */
@@ -111,11 +121,11 @@ class Game {
         }
         return true;
       },
-      correctPick: () => {
-        this.state.correctPick = content.correctPick;
+      setCorrectPick: (message: WSSetCorrectPick) => {
+        this.state.correctPick = message.correctPick;
         return true;
       },
-      shuffle: () => {
+      shuffleTables: (message: WSShuffleTables) => {
         const tables = this.state.tables;
         for (let i = tables.length - 1; i >= 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -125,8 +135,8 @@ class Game {
       },
     };
 
-    if (type in types) {
-      const requireBroadcast = types[type]();
+    if (message.type in types) {
+      const requireBroadcast = types[message.type](message);
       if (requireBroadcast) {
         this.broadcast("state", this.state);
       }
