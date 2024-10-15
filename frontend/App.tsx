@@ -4,7 +4,7 @@ import GameMasterControls from './GameMasterControls';
 import PlayerNamePicker from './PlayerNamePicker';
 import Table from './Table';
 import LoadingScreen from './LoadingScreen';
-import { Player, State, WSClientToServerMessage } from '../types';
+import { FullPlayer, State, WSClientToServerMessage } from '../types';
 import { WebsocketContext } from './main';
 
 
@@ -14,7 +14,7 @@ export default function App() {
 
   const connection = useRef<WebSocket>(null);
   const tablesRef = useRef(new Map<number, HTMLDivElement>());
-  const [currentPlayer, setCurrentPlayer] = useState<Player>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});
+  const [currentPlayer, setCurrentPlayer] = useState<FullPlayer>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});
 
   const [state, setState] = useState<State>({
     players: {},
@@ -34,7 +34,7 @@ export default function App() {
   }
 
   const handleCurrentPlayerName = (name:string) => {
-    const player:Player = {
+    const player:FullPlayer = {
       name,
       id: Math.random().toString(),
       privateId:  Math.random().toString(),

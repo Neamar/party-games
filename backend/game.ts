@@ -86,6 +86,7 @@ class Game {
         });
       },
       setGameStatus: (message: WSSetGameStatus) => {
+        console.log("setting status", message);
         const state = this.state;
         state.status = message.status;
 
@@ -125,7 +126,7 @@ class Game {
         this.state.correctPick = message.correctPick;
         return true;
       },
-      shuffleTables: (message: WSShuffleTables) => {
+      shuffleTables: (_message: WSShuffleTables) => {
         const tables = this.state.tables;
         for (let i = tables.length - 1; i >= 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -135,7 +136,9 @@ class Game {
       },
     };
 
+    console.log("Handling message", message);
     if (message.type in types) {
+      // @ts-expect-error message can't be typed properly
       const requireBroadcast = types[message.type](message);
       if (requireBroadcast) {
         this.broadcast("state", this.state);

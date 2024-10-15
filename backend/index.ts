@@ -53,7 +53,7 @@ uWS
         const decodedMessage = JSON.parse(Buffer.from(message).toString());
         getGameById(ws.getUserData().gameId).receive(decodedMessage);
       } catch (e) {
-        console.log("Unable to handle received message", e);
+        console.error("Unable to handle received message", e);
       }
     },
     drain: (ws) => {

@@ -7,6 +7,8 @@ export type Player = {
   privateId?: PlayerPrivateId;
 };
 
+export type FullPlayer = Player & { privateId: PlayerPrivateId };
+
 export type TablePlayer = {
   id: PlayerId;
   pick: string | null;
@@ -32,36 +34,37 @@ export type WSAddPlayerMessage = {
   type: "addPlayer";
   name: string;
   id: PlayerId;
-  privateId?: PlayerPrivateId;
+  privateId: PlayerPrivateId;
 };
 
 export type WSSetPlayerPickMessage = {
   type: "setPlayerPick";
-  // privateId: PlayerPrivateId;
+  privateId?: PlayerPrivateId;
   pick: string;
 };
 
 export type WSSetGameStatus = {
   type: "setGameStatus";
-  // privateId: PlayerPrivateId;
+  privateId?: PlayerPrivateId;
   status: GameStatus;
 };
 
 export type WSSetCorrectPick = {
   type: "setCorrectPick";
-  // privateId: PlayerPrivateId;
+  privateId?: PlayerPrivateId;
   correctPick: string | null;
 };
 
 export type WSShuffleTables = {
   type: "shuffleTables";
-  // privateId: PlayerPrivateId;
+  privateId?: PlayerPrivateId;
 };
 
-export type WSClientToServerMessage = (
+export type WSClientToServerMessage =
   | WSAddPlayerMessage
   | WSSetPlayerPickMessage
   | WSSetGameStatus
   | WSSetCorrectPick
-  | WSShuffleTables
-) & { privateId?: PlayerPrivateId };
+  | WSShuffleTables;
+
+export type SendClientMessage = (message: WSClientToServerMessage) => void;

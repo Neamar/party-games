@@ -25,7 +25,15 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      '@stylistic/js/semi': ["error", "always"]
+      '@stylistic/js/semi': ["error", "always"],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ]
     },
   },
 )
