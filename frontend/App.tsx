@@ -8,13 +8,13 @@ import { FullPlayer, State, WSClientToServerMessage } from '../types';
 import { WebsocketContext } from './main';
 
 
-export default function App() {
-  const [gameId] = useState(document.location.hash.slice(1));
+export default function App({gameId}) {
   const localStoragePlayerKey = `game/${gameId}`;
 
   const connection = useRef<WebSocket>(null);
   const tablesRef = useRef(new Map<number, HTMLDivElement>());
   const [currentPlayer, setCurrentPlayer] = useState<FullPlayer>(localStorage.getItem(localStoragePlayerKey) ? JSON.parse(localStorage.getItem(localStoragePlayerKey)) : {name:'', id: '', privateId: ''});
+  const [spectatorMode, setSpectatorMode] = useState(false);
 
   const [state, setState] = useState<State>({
     players: {},
@@ -128,7 +128,7 @@ export default function App() {
   }
 
   return <WebsocketContext.Provider value={sendMessage}>
-    {!currentPlayer.name && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} />}
+    {!currentPlayer.name && !spectatorMode && <PlayerNamePicker handleCurrentPlayerName={handleCurrentPlayerName} setSpectatorMode={setSpectatorMode} />}
     <GameMasterControls state={state} />
     {mainContent}
   </WebsocketContext.Provider>;

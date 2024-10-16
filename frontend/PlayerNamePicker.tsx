@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function PlayerNamePicker({handleCurrentPlayerName}) {
+export default function PlayerNamePicker({handleCurrentPlayerName, setSpectatorMode}) {
   const dialogRef = useRef(null);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -14,11 +14,12 @@ export default function PlayerNamePicker({handleCurrentPlayerName}) {
   }
 
   return <dialog ref={dialogRef}>
-    <h1>Welcome to UpDown!</h1>
-    <p>Pick a name to get started.</p>
+    <h1>Bienvenue !</h1>
+    <p>Pour commencer, choisissez votre pseudo.</p>
     <form onSubmit={handleSubmit}>
       <input type="text" id="player-name"/>
-      <input type="submit" value="Submit" />
+      <input type="submit" value="Commencer" />
     </form>
+    <button onClick={() => setSpectatorMode(true)}>Je veux juste être un spectateur</button>
   </dialog>;
 }
