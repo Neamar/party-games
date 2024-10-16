@@ -60,11 +60,18 @@ export type WSShuffleTables = {
   privateId?: PlayerPrivateId;
 };
 
+export type WSRemovePlayer = {
+  type: "removePlayer";
+  privateId?: PlayerPrivateId;
+  id: PlayerId;
+};
+
 export type WSClientToServerMessage =
   | WSAddPlayerMessage
   | WSSetPlayerPickMessage
   | WSSetGameStatus
   | WSSetCorrectPick
-  | WSShuffleTables;
+  | WSShuffleTables
+  | WSRemovePlayer;
 
 export type SendClientMessage = (message: WSClientToServerMessage) => void;

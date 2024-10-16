@@ -10,4 +10,8 @@
   &:hover {
     right: 0px;
   }
+
+  #buttons * {
+    display: block;
+  }
 }

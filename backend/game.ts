@@ -5,6 +5,7 @@ import {
   Table,
   WSAddPlayerMessage,
   WSClientToServerMessage,
+  WSRemovePlayer,
   WSSetCorrectPick,
   WSSetGameStatus,
   WSSetPlayerPickMessage,
@@ -45,20 +46,22 @@ class Game {
   }
 
   receive(message: WSClientToServerMessage) {
+    const state = this.state;
+
     const types = {
       addPlayer: (message: WSAddPlayerMessage) => {
         // Add new player to the game
-        assert(!this.state.players[message.id], "User already registered");
+        assert(!state.players[message.id], "User already registered");
 
-        this.state.players[message.id] = {
+        state.players[message.id] = {
           id: message.id,
           privateId: message.privateId,
           name: message.name,
         };
 
-        const lastTable = this.state.tables?.[this.state.tables.length - 1];
+        const lastTable = state.tables?.[state.tables.length - 1];
         if (!lastTable || lastTable.players.length === 2) {
-          this.state.tables.push({
+          state.tables.push({
             players: [{ id: message.id, pick: null }],
           });
         } else {
@@ -68,13 +71,13 @@ class Game {
         return true;
       },
       setPlayerPick: (message: WSSetPlayerPickMessage) => {
-        assert(this.state.status === "picking", "State must be picking");
+        assert(state.status === "picking", "State must be picking");
 
         // Pick a tile on the table
         const player = this.getPlayerByPrivateId(message.privateId);
         assert(player, "Invalid player id");
 
-        return this.state.tables.some((t) => {
+        return state.tables.some((t) => {
           return t.players.some((p) => {
             if (p.id === player.id) {
               if (!t.players.some((t) => t.pick === message.pick)) {
@@ -86,7 +89,6 @@ class Game {
         });
       },
       setGameStatus: (message: WSSetGameStatus) => {
-        console.log("setting status", message);
         const state = this.state;
         state.status = message.status;
 
@@ -123,15 +125,31 @@ class Game {
         return true;
       },
       setCorrectPick: (message: WSSetCorrectPick) => {
-        this.state.correctPick = message.correctPick;
+        state.correctPick = message.correctPick;
         return true;
       },
       shuffleTables: (_message: WSShuffleTables) => {
-        const tables = this.state.tables;
+        const tables = state.tables;
         for (let i = tables.length - 1; i >= 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [tables[i], tables[j]] = [tables[j], tables[i]];
         }
+        return true;
+      },
+      removePlayer: (message: WSRemovePlayer) => {
+        delete state.players[message.id];
+        state.tables = state.tables
+          .map((t) => t.players)
+          .flat(1)
+          .filter((p) => p.id !== message.id)
+          .reduce((t: Table[], p) => {
+            if (t.length === 0 || t.at(-1).players.length === 2) {
+              t.push({ players: [] });
+            }
+
+            t.at(-1).players.push(p);
+            return t;
+          }, []);
         return true;
       },
     };
@@ -141,7 +159,7 @@ class Game {
       // @ts-expect-error message can't be typed properly
       const requireBroadcast = types[message.type](message);
       if (requireBroadcast) {
-        this.broadcast("state", this.state);
+        this.broadcast("state", state);
       }
     }
   }
