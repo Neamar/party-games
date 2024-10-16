@@ -1,6 +1,7 @@
 import { Fragment, useContext } from 'react';
 import { WebsocketContext } from './main';
 import { State } from '../types';
+import "./GameMasterControls.css";
 
 export default function GameMasterControls({state}:{state:State}) {
   const sendMessage = useContext(WebsocketContext);
@@ -37,12 +38,17 @@ export default function GameMasterControls({state}:{state:State}) {
       tips = tablePlayers.filter(player => !player.pick).map(player => <li key={player.id}>{state.players[player.id].name} hasn't picked anything yet</li>);
     }
   }
-  return <>
+  else if(state.status === 'unplayed') {
+    tips.push(<li key="playerCount">{Object.keys(state.players).length} joueur(s) disponibles</li>);
+  }
+  return <div id="gameMasterControls">
+  <h2>Actions</h2>
   <div id="buttons">
     {actions}
   </div>
+  <h2>Info</h2>
   <ul>
     {tips}
   </ul>
-  </>;
+  </div>;
 }

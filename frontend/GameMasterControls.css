@@ -1,0 +1,13 @@
+#gameMasterControls {
+  position: absolute;
+  width: 250px;
+  right: -250px;
+  transition: right 1s;
+  background: red;
+  padding: 20px;
+  overflow: hidden;
+
+  &:hover {
+    right: 0px;
+  }
+}
