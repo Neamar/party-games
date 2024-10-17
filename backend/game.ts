@@ -46,6 +46,8 @@ class Game {
   }
 
   receive(message: WSClientToServerMessage) {
+    assert(message.privateId, "Missing privateId");
+
     const state = this.state;
 
     const types = {
@@ -74,7 +76,7 @@ class Game {
         assert(state.status === "picking", "State must be picking");
 
         // Pick a tile on the table
-        const player = this.getPlayerByPrivateId(message.privateId);
+        const player = this.getPlayerByPrivateId(message.privateId!);
         assert(player, "Invalid player id");
 
         return state.tables.some((t) => {
@@ -143,11 +145,11 @@ class Game {
           .flat(1)
           .filter((p) => p.id !== message.id)
           .reduce((t: Table[], p) => {
-            if (t.length === 0 || t.at(-1).players.length === 2) {
+            if (t.length === 0 || t.at(-1)?.players.length === 2) {
               t.push({ players: [] });
             }
 
-            t.at(-1).players.push(p);
+            t.at(-1)?.players.push(p);
             return t;
           }, []);
         return true;
