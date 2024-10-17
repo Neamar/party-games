@@ -2,7 +2,7 @@ import { createContext, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { SendClientMessage } from '../types.ts';
+import type { SendClientMessage } from '../types.ts';
 
 export const WebsocketContext = createContext<SendClientMessage>(() => {});
 

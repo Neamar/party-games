@@ -1,6 +1,6 @@
 import uWS from "uWebSockets.js";
 import { readFileSync, existsSync, writeFile } from "fs";
-import {
+import type {
   State,
   Table,
   WSAddPlayerMessage,
