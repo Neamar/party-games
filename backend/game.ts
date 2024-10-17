@@ -145,11 +145,11 @@ class Game {
           .flat(1)
           .filter((p) => p.id !== message.id)
           .reduce((t: Table[], p) => {
-            if (t.length === 0 || t.at(-1)?.players.length === 2) {
+            if (t.length === 0 || t.at(-1)!.players.length === 2) {
               t.push({ players: [] });
             }
 
-            t.at(-1)?.players.push(p);
+            t.at(-1)!.players.push(p);
             return t;
           }, []);
         return true;
