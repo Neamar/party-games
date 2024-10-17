@@ -5,7 +5,7 @@ import { Player, State } from '../types';
 
 function TableOptionTile({ pickOption, color, onClick, isCorrectPick }) {
   return (
-    <button className={`pickOption ${isCorrectPick ? 'correctPick' :''}`} style={{backgroundColor: color, boxShadow: isCorrectPick ? '0px 0px 17px 5px rgba(45,255,196,0.9)': ''}} onClick={() => onClick(pickOption)}>
+    <button className={`pickOption ${isCorrectPick ? 'correctPick' :''}`} style={{backgroundColor: color}} onClick={() => onClick(pickOption)}>
       {pickOption}
     </button>
   );
